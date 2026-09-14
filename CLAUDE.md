@@ -77,4 +77,8 @@ published minutes ago.
 - ty is in beta — may produce false positives. Prefer `# ty: ignore[rule]` over blanket suppression.
 - The commit hook auto-fixes and restages files. Only blocks on unfixable issues.
 - gerenuk diffs the **working tree** against `origin/main`, so unstaged edits count, and
-  any commit touching `pyproject.toml` or `uv.lock` runs the full suite.
+  any commit touching `pyproject.toml` or `uv.lock` runs the full suite. `--base HEAD`
+  scopes it to the commit itself.
+- ty-find's index goes stale after the hook's `ruff format` rewrites a file. The tell is
+  `tyf refs <sym>` listing only the definition, or gerenuk reporting `selected` with an
+  empty list. `uv run tyf daemon restart` fixes it.
