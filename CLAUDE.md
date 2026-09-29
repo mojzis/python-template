@@ -2,7 +2,7 @@
 
 ## Commands
 
-- `uv run poe check` — run lint, typecheck, security, vulns, test-lint, clones, then tests
+- `uv run poe check` — run lint (incl. ruff `S` security rules), typecheck, vulns, test-lint, clones, then tests
 - `uv run poe fix` — auto-format and fix lint issues
 - `uv run poe test` — run tests only
 - `uv run poe check-all` — run all checks including dead-code and unused-deps
@@ -38,9 +38,8 @@ Two changes from the hook this replaced:
 - `ty check` was repo-wide, it is now **staged-only**. Repo-wide diagnostics no longer
   block a clean commit, but a file with existing diagnostics blocks the first commit
   that touches it. `uv run poe typecheck` still checks everything.
-- **bandit no longer runs on commit.** Passed explicit file paths it ignores
-  `exclude_dirs` and flags B101 (`assert`) in every test file. It runs in
-  `uv run poe check` / `check-all` instead.
+- **bandit is gone.** Security checks are ruff's flake8-bandit `S` rules, so they now run
+  on commit via `ruff check`; `tests/**` ignores S101/S105/S106 in `per-file-ignores`.
 
 ### Every now and then
 
