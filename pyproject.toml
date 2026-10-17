@@ -154,3 +154,10 @@ help = "Run all checks (report all failures)"
 [tool.poe.tasks.setup]
 cmd = "madoqua install"
 help = "Install the madoqua commit hook (sets core.hooksPath)"
+
+[tool.poe.tasks.upgrade]
+sequence = [
+    { cmd = "uv lock --upgrade --refresh" },
+    { cmd = "uv sync" },
+]
+help = "Upgrade all locked dependencies (--refresh skips a stale index cache)"
