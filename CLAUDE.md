@@ -1,83 +1,42 @@
 # Python Template
 
+uv · ruff · ty (beta) · pytest · poethepoet. Toolbox: [aesop](https://mojzis.github.io/aesop/llms.txt).
+Run `uv run <tool> guide` before reaching for flags, `guide tune` before changing a threshold.
+
 ## Commands
 
-- `uv run poe check` — run lint (incl. ruff `S` security rules), typecheck, vulns, test-lint, clones, then tests
-- `uv run poe fix` — auto-format and fix lint issues
-- `uv run poe test` — run tests only
-- `uv run poe check-all` — run all checks including dead-code and unused-deps
+| command | does |
+|---|---|
+| `uv run poe check` | lint, typecheck, vulns, test-lint, clones, then tests |
+| `uv run poe check-all` | + dead-code, unused-deps; exits 0 on failure, read the output |
+| `uv run poe fix` | format + autofix lint |
+| `uv run poe upgrade` | upgrade every locked dependency, then sync |
+| `uv run tyf find\|refs\|list\|calls` | symbol lookup; use instead of grep |
+| `uv run gerenuk impacted-tests` | tests the working-tree diff reaches |
 
-## Stack
+Fresh clone: `uv sync && uv run madoqua install`.
 
-uv, ruff (lint/format), ty (type check), pytest, poethepoet (task runner)
+Commit hook is madoqua: fixes and re-stages, then blocks on ruff, ty, biston, zorilla,
+gerenuk. Staged `.py` only. Never bypass a true finding (`--no-verify`, `MADOQUA_SKIP`).
+Details and gotchas: [docs/toolbox.md](docs/toolbox.md).
 
-## Toolbox
+ty false positive → `# ty: ignore[rule]`, never a blanket suppression.
 
-The [aesop toolbox](https://mojzis.github.io/aesop/llms.txt) is wired in here. Every
-tool explains itself — run `uv run <tool> guide` before reaching for flags, and
-`uv run <tool> guide tune` before changing a threshold. Call them as `uv run <tool>`;
-ty-find's binary is `tyf`.
+<!-- project-knowledge rules v1, minimal subset — canonical: https://mojzis.github.io/clauding/rules/v1/ -->
+## Project knowledge
 
-### On every commit
+**Done needs evidence → [QA.md](QA.md).** Run the tier the change needs, compare against its
+`expect`, end with a QA report: what ran, vs `expect`, what wasn't run and why.
+Not evidence: reasoning, weakened tests, new skips, "output exists".
+Baseline moved on purpose → update `expect` in the same commit.
 
-**madoqua** is the only commit hook (`hooks/pre-commit`, `core.hooksPath=hooks`). It
-acts on staged `.py`/`.pyi` files only — a commit without one is a silent no-op, not a
-verified hook.
+**Papercuts → `docs/papercuts/slug.md`.** Anything that slowed you down: confusing error,
+flaky step, misleading doc. Log it when you hit it; fix inline only if trivial.
+Read the open ones touching your area before a task.
 
-| phase | steps |
-| --- | --- |
-| fix (rewrites and re-stages) | `ruff check --fix`, `ruff format` |
-| check (blocks) | `ruff check`, `ty check`, `biston scan --focus-args`, `zorilla check`, `gerenuk run` |
+**Decisions → `docs/adr/NNNN-slug.md`** when choosing between real alternatives, adding a
+dependency, or changing a public interface. Never rewrite an accepted one; supersede it.
 
-Whole hook runs in ~0.3 s on this repo (gerenuk ~0.27 s of that; `uv run madoqua stats`
-for current numbers). Don't commit with `--no-verify` or `MADOQUA_SKIP` to get past a
-check that is telling the truth.
-
-Two changes from the hook this replaced:
-
-- `ty check` was repo-wide, it is now **staged-only**. Repo-wide diagnostics no longer
-  block a clean commit, but a file with existing diagnostics blocks the first commit
-  that touches it. `uv run poe typecheck` still checks everything.
-- **bandit is gone.** Security checks are ruff's flake8-bandit `S` rules, so they now run
-  on commit via `ruff check`; `tests/**` ignores S101/S105/S106 in `per-file-ignores`.
-
-### Every now and then
-
-- `uv run pycoati . --format pretty` — scores every test for suspicion and prints a
-  remediation ladder. Run it before a test-cleanup session. Never put it in a hook or
-  CI: it runs the suite three times. It needs pytest-cov or coverage is silently null.
-
-### On demand — instead of grep
-
-- `uv run tyf find <symbol>` / `tyf refs` / `tyf list <file>` / `tyf calls` — type-aware
-  symbol lookup. **Use these instead of grep** for definitions and references; grep
-  cannot tell a definition from a string that happens to match.
-- `uv run gerenuk audit <file>` — lists symbols in a module that nothing references.
-- `uv run gerenuk impacted-tests` — which tests a working-tree diff reaches, and why.
-
-### Fresh clone
-
-```
-uv sync
-uv run madoqua install    # once; core.hooksPath is local config, not tracked
-```
-
-### Refreshing the toolbox
-
-```
-uv lock --refresh --upgrade-package madoqua --upgrade-package gerenuk --upgrade-package biston --upgrade-package zorilla --upgrade-package pycoati --upgrade-package ty-find && uv sync
-```
-
-`--refresh` matters: without it uv may serve a cached index and miss a release
-published minutes ago.
-
-## Notes
-
-- ty is in beta — may produce false positives. Prefer `# ty: ignore[rule]` over blanket suppression.
-- The commit hook auto-fixes and restages files. Only blocks on unfixable issues.
-- gerenuk diffs the **working tree** against `origin/main`, so unstaged edits count, and
-  any commit touching `pyproject.toml` or `uv.lock` runs the full suite. `--base HEAD`
-  scopes it to the commit itself.
-- ty-find's index goes stale after the hook's `ruff format` rewrites a file. The tell is
-  `tyf refs <sym>` listing only the definition, or gerenuk reporting `selected` with an
-  empty list. `uv run tyf daemon restart` fixes it.
+**Docs:** dense, no filler, tables over prose. Frontmatter `title`, `code:` (paths the doc
+describes), `status` on papercuts/ADRs. Changed something in a doc's `code:` → update the
+doc in the same commit.
