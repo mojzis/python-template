@@ -54,6 +54,8 @@ show_missing = true
 
 [tool.vulture]
 paths = ["src"]
+# Public API of the placeholder package: only tests call it. Drop when greet goes.
+ignore_names = ["greet"]
 
 [tool.deptry]
 
@@ -99,8 +101,7 @@ cmd = "pytest -q --tb=short"
 help = "Run tests"
 
 [tool.poe.tasks.vulns]
-shell = "uvx pysentry-rs . || true"
-interpreter = "bash"
+cmd = "uvx pysentry-rs ."
 help = "Dependency vulnerability scan"
 
 [tool.poe.tasks.test-lint]
@@ -120,13 +121,17 @@ cmd = "deptry ."
 help = "Unused dependency check"
 
 [tool.poe.tasks._check-parallel]
+# A bare `wait` always returns 0; wait on each pid so any failure fails the task.
 shell = """
-  ruff check . &
-  ty check &
-  zorilla check . &
-  biston scan . &
-  (uvx pysentry-rs . || true) &
-  wait
+  pids=()
+  ruff check . & pids+=($!)
+  ty check & pids+=($!)
+  zorilla check . & pids+=($!)
+  biston scan . & pids+=($!)
+  uvx pysentry-rs . & pids+=($!)
+  rc=0
+  for p in "${pids[@]}"; do wait "$p" || rc=1; done
+  exit $rc
 """
 interpreter = "bash"
 
@@ -148,7 +153,7 @@ sequence = [
     { ref = "unused-deps" },
     { ref = "test" },
 ]
-ignore_fail = true
+ignore_fail = "return_non_zero"
 help = "Run all checks (report all failures)"
 
 [tool.poe.tasks.setup]

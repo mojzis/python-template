@@ -19,7 +19,8 @@ Config: `[tool.madoqua]` in `pyproject.toml`.
 - Security lint is ruff `S` rules (no bandit). `tests/**` ignores S101/S105/S106.
 - gerenuk diffs the **working tree** against `origin/main`: unstaged edits count; any change to
   `pyproject.toml`/`uv.lock` runs the full suite. `--base HEAD` scopes to the commit.
-- tyf index goes stale after the hook reformats a file ([papercut](papercuts/tyf-stale-index.md)).
+- tyf index goes stale after the hook's `ruff format`. Tell: `tyf refs <sym>` lists only the definition,
+  or gerenuk reports `selected` with an empty list. Fix: `uv run tyf daemon restart`.
 
 **Manual only:** `uv run pycoati . --format pretty` scores tests for suspicion. Runs the suite 3×,
 needs pytest-cov. Never in a hook or CI.

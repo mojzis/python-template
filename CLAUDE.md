@@ -7,8 +7,8 @@ Run `uv run <tool> guide` before reaching for flags, `guide tune` before changin
 
 | command | does |
 |---|---|
-| `uv run poe check` | lint, typecheck, vulns, test-lint, clones, then tests |
-| `uv run poe check-all` | + dead-code, unused-deps; exits 0 on failure, read the output |
+| `uv run poe check` | lint, typecheck, vulns, test-lint, clones, then tests (what CI runs) |
+| `uv run poe check-all` | + dead-code, unused-deps; runs every step, fails if any failed |
 | `uv run poe fix` | format + autofix lint |
 | `uv run poe upgrade` | upgrade every locked dependency, then sync |
 | `uv run tyf find\|refs\|list\|calls` | symbol lookup; use instead of grep |
@@ -30,11 +30,11 @@ ty false positive → `# ty: ignore[rule]`, never a blanket suppression.
 Not evidence: reasoning, weakened tests, new skips, "output exists".
 Baseline moved on purpose → update `expect` in the same commit.
 
-**Papercuts → `docs/papercuts/slug.md`.** Anything that slowed you down: confusing error,
+**Papercuts → `docs/papercuts/slug.md`** (copy `_template.md`). Anything that slowed you down: confusing error,
 flaky step, misleading doc. Log it when you hit it; fix inline only if trivial.
 Read the open ones touching your area before a task.
 
-**Decisions → `docs/adr/NNNN-slug.md`** when choosing between real alternatives, adding a
+**Decisions → `docs/adr/NNNN-slug.md`** (copy `0000-template.md`) when choosing between real alternatives, adding a
 dependency, or changing a public interface. Never rewrite an accepted one; supersede it.
 
 **Docs:** dense, no filler, tables over prose. Frontmatter `title`, `code:` (paths the doc

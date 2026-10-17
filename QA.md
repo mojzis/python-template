@@ -9,10 +9,10 @@ tiers:
   - name: full
     cmd: uv run poe check-all
     when: dependency or pyproject.toml changes; before merge
-    expect: {collected_min: 2, skips: [], warnings_max: 0, seconds: [0.5, 60], findings: [vulture greet]}
+    expect: {collected_min: 2, skips: [], warnings_max: 0, seconds: [0.5, 60]}
 ---
 
-No CI: these local runs are the only gate ([papercut](docs/papercuts/no-ci.md)).
+CI (`.github/workflows/ci.yml`) runs `fast` on every push to main and every PR.
 
 | change | run |
 |---|---|
@@ -20,13 +20,10 @@ No CI: these local runs are the only gate ([papercut](docs/papercuts/no-ci.md)).
 | `src/`, `tests/` | fast |
 | `pyproject.toml`, `uv.lock` | full |
 
-**Expected findings in full:** vulture `unused function 'greet' (60%)`: placeholder API, only tests call it.
-Any other finding is a failure.
+**Prerequisites:** vulns needs `codeload.github.com` (PyPA advisory DB). Blocked → vulns exits 2
+and `check` fails; report vulns as not run. Never pass `--no-fail-on-partial` to get green.
 
-**Non-evidence here:**
-- `check-all` exit code ([papercut](docs/papercuts/check-all-exit-code.md)).
-- vulns "No vulnerabilities found!" when the same output says `PARTIAL SCAN` ([papercut](docs/papercuts/vulns-partial-scan.md)).
-- A commit that staged no `.py` file: the hook did nothing.
+**Non-evidence here:** a commit that staged no `.py` file: the hook did nothing.
 
 **Oracles**
 | name | kind | check | status |
