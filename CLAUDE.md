@@ -71,6 +71,19 @@ uv lock --refresh --upgrade-package madoqua --upgrade-package gerenuk --upgrade-
 `--refresh` matters: without it uv may serve a cached index and miss a release
 published minutes ago.
 
+## New project from this template
+
+When starting a new project from this template, set up a GitHub Actions CI pipeline
+(`.github/workflows/ci.yml`) that runs `uv sync` and `uv run poe check` on push and pull
+request.
+
+**Use the newest major version of every action.** Versions remembered from training
+data are usually outdated, so look each one up before writing it, e.g.
+`gh release view --repo actions/checkout` (or the latest-release / list-tags tool from the
+GitHub integration). This covers at least `actions/checkout` and `astral-sh/setup-uv`.
+Use `setup-uv` to install uv and Python instead of `actions/setup-python`, and turn on its
+cache. Don't copy version tags from older workflows or from memory.
+
 ## Notes
 
 - ty is in beta — may produce false positives. Prefer `# ty: ignore[rule]` over blanket suppression.
