@@ -17,6 +17,7 @@ dev = [
     "zorilla",
     "pycoati",
     "ty-find",
+    "dermestes",
     # core
     "ruff",
     "ty",
@@ -73,6 +74,8 @@ extend_check = [
     { name = "gerenuk", cmd = "gerenuk run -- -q -o addopts=", pass_files = false, timeout_s = 120, max_output_lines = 120 },
 ]
 
+[tool.dermestes]
+
 [tool.biston.scan]
 exclude = ["**/tests/**"]
 
@@ -115,6 +118,10 @@ help = "Clone detection (biston)"
 cmd = "vulture src"
 help = "Dead code detection"
 
+[tool.poe.tasks.abstractions]
+cmd = "dermestes --all"
+help = "Single-use abstractions (dermestes)"
+
 [tool.poe.tasks.unused-deps]
 cmd = "deptry ."
 help = "Unused dependency check"
@@ -145,6 +152,7 @@ sequence = [
     { ref = "test-lint" },
     { ref = "clones" },
     { ref = "dead-code" },
+    { ref = "abstractions" },
     { ref = "unused-deps" },
     { ref = "test" },
 ]

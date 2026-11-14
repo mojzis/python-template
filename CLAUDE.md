@@ -5,7 +5,7 @@
 - `uv run poe check` — run lint (incl. ruff `S` security rules), typecheck, vulns, test-lint, clones, then tests
 - `uv run poe fix` — auto-format and fix lint issues
 - `uv run poe test` — run tests only
-- `uv run poe check-all` — run all checks including dead-code and unused-deps
+- `uv run poe check-all` — run all checks including dead-code, single-use abstractions (dermestes) and unused-deps
 
 ## Stack
 
@@ -54,6 +54,11 @@ Two changes from the hook this replaced:
   cannot tell a definition from a string that happens to match.
 - `uv run gerenuk audit <file>` — lists symbols in a module that nothing references.
 - `uv run gerenuk impacted-tests` — which tests a working-tree diff reaches, and why.
+- `uv run dermestes` — flags single-use abstractions your working-tree changes introduced
+  (an ABC/Protocol with one implementation, a function with one caller, a parameter
+  nobody varies) as deletion candidates. Run it after adding a layer of indirection;
+  `uv run dermestes guide` prints triage instructions for its findings. `--all` audits
+  the whole repo (`uv run poe abstractions`, also part of `check-all`).
 
 ### Fresh clone
 
@@ -65,7 +70,7 @@ uv run madoqua install    # once; core.hooksPath is local config, not tracked
 ### Refreshing the toolbox
 
 ```
-uv lock --refresh --upgrade-package madoqua --upgrade-package gerenuk --upgrade-package biston --upgrade-package zorilla --upgrade-package pycoati --upgrade-package ty-find && uv sync
+uv lock --refresh --upgrade-package madoqua --upgrade-package gerenuk --upgrade-package biston --upgrade-package zorilla --upgrade-package pycoati --upgrade-package ty-find --upgrade-package dermestes && uv sync
 ```
 
 `--refresh` matters: without it uv may serve a cached index and miss a release
