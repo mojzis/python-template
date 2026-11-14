@@ -70,11 +70,16 @@ fail_under = 0
 extend_check = [
     # madoqua appends the staged .py files. biston reads them as --focus-args focus files
     # (only clone pairs touching a staged file); zorilla lints exactly those files.
-    { name = "biston", cmd = "biston scan --focus-args", timeout_s = 60, max_output_lines = 80 },
+    # full_cmd is what `madoqua check` (and so `poe check`) runs on the whole repo instead.
+    { name = "biston", cmd = "biston scan --focus-args", full_cmd = "biston scan .", timeout_s = 60, max_output_lines = 80 },
     { name = "zorilla", cmd = "zorilla check", timeout_s = 30, max_output_lines = 80 },
     # gerenuk scopes itself from the git diff, so no file list.
     # -o addopts= drops the --cov from [tool.pytest.ini_options]; the hook never reads coverage.
-    { name = "gerenuk", cmd = "gerenuk run -- -q -o addopts=", pass_files = false, timeout_s = 120, max_output_lines = 120 },
+    { name = "gerenuk", cmd = "gerenuk run -- -q -o addopts=", pass_files = false, when = "commit", timeout_s = 120, max_output_lines = 120 },
+    # `madoqua check` only: the full suite instead of gerenuk's selection, and a
+    # non-blocking dependency vulnerability scan.
+    { name = "pytest", cmd = "pytest -q --tb=short", pass_files = false, when = "full" },
+    { name = "pysentry", cmd = "uvx pysentry-rs .", pass_files = false, when = "full", blocking = false },
 ]
 
 [tool.dermestes]
@@ -129,23 +134,9 @@ help = "Single-use abstractions (dermestes)"
 cmd = "deptry ."
 help = "Unused dependency check"
 
-[tool.poe.tasks._check-parallel]
-shell = """
-  ruff check . &
-  ty check &
-  zorilla check . &
-  biston scan . &
-  (uvx pysentry-rs . || true) &
-  wait
-"""
-interpreter = "bash"
-
 [tool.poe.tasks.check]
-sequence = [
-    { ref = "_check-parallel" },
-    { ref = "test" },
-]
-help = "Run all checks (parallel where possible)"
+cmd = "madoqua check"
+help = "Run all checks on the whole repo (madoqua check)"
 
 [tool.poe.tasks.check-all]
 sequence = [
