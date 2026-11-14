@@ -2,7 +2,7 @@
 
 ## Commands
 
-- `uv run poe check` — run lint (incl. ruff `S` security rules), typecheck, vulns, test-lint, clones, then tests
+- `uv run poe check` — runs `madoqua check`: the commit hook's checks on the whole repo (ruff incl. `S` security rules, ty, biston, zorilla), plus the full test suite and a non-blocking vulns scan. Configured in `[tool.madoqua]` (`full_cmd`, `when`)
 - `uv run poe fix` — auto-format and fix lint issues
 - `uv run poe test` — run tests only
 - `uv run poe check-all` — run all checks including dead-code, single-use abstractions (dermestes) and unused-deps
