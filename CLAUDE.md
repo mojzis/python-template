@@ -88,10 +88,15 @@ When starting a new project from this template, set up a GitHub Actions CI pipel
 (`.github/workflows/ci.yml`) that runs `uv sync` and `uv run poe check` on push and pull
 request.
 
-**Use the newest major version of every action.** Versions remembered from training
-data are usually outdated, so look each one up before writing it, e.g.
-`gh release view --repo actions/checkout` (or the latest-release / list-tags tool from the
+**Use the newest version of every action.** Versions remembered from training data are
+usually outdated, so look each one up before writing it:
+`gh release view --repo <owner/repo>` (or the latest-release / list-tags tool from the
 GitHub integration). This covers at least `actions/checkout` and `astral-sh/setup-uv`.
+
+Then check that the tag you write exists: `gh api repos/<owner/repo>/git/ref/tags/<tag>`.
+Use the major tag (`@v7`) if it exists, otherwise the full version. Not every action
+publishes major tags: `setup-uv` doesn't, so `@v10` fails with "unable to find version"
+and it needs e.g. `@v10.3.3`.
 Use `setup-uv` to install uv and Python instead of `actions/setup-python`, and turn on its
 cache. Don't copy version tags from older workflows or from memory.
 
