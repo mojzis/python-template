@@ -11,6 +11,12 @@
 
 uv, ruff (lint/format), ty (type check), pytest, poethepoet (task runner)
 
+Package lives in `python_template/` (no `src/`).
+
+## Standards
+
+Unless told otherwise, follow [docs/standards/](docs/standards/README.md): CLI = typer + rich, web = FastAPI + htmx, plus LLM, data and testing defaults. Read the relevant file before adding a CLI, web UI, LLM call, storage or tests.
+
 ## Toolbox
 
 The [aesop toolbox](https://mojzis.github.io/aesop/llms.txt) is wired in here. Every
