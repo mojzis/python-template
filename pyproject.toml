@@ -150,7 +150,7 @@ sequence = [
     { ref = "unused-deps" },
     { ref = "test" },
 ]
-ignore_fail = true
+ignore_fail = "return_non_zero"
 help = "Run all checks (report all failures)"
 
 [tool.poe.tasks.setup]
